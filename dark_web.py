@@ -56,17 +56,18 @@ if scan:
         st.success("System safe.")
 
     # PDF
-    def make_pdf(data):
-        doc = SimpleDocTemplate("SVIT_Report.pdf", pagesize=A4)
-        styles = getSampleStyleSheet()
-        elements=[Paragraph("SVIT Dark Web Threat Report",styles["Title"])]
-        table=Table([["Activity","Risk","Probability"]]+data.values.tolist())
-        elements.append(table)
-        doc.build(elements)
+   from io import BytesIO
 
-    make_pdf(df)
-    with open("SVIT_Report.pdf","rb") as f:
-        st.download_button("Download Official Report",f,"SVIT_Report.pdf")
+def make_pdf(data):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    elements = [Paragraph("SVIT Dark Web Threat Report", styles["Title"])]
+    table = Table([["Activity","Risk","Probability"]] + data.values.tolist())
+    elements.append(table)
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
 
-st.divider()
-st.markdown("<center>Developed by SVIT CSE Student</center>", unsafe_allow_html=True)
+pdf = make_pdf(df)
+st.download_button("Download Official Report", pdf, "SVIT_Report.pdf")
